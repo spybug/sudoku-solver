@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Sudoku Solver</string>
+    <string name="single_solve_label">Solve One Step</string>
+    <string name="full_solve_label">Solve Fully</string>
+    <string name="clear_puzzle_label">Clear Board</string>
+    <string name="save_puzzle_label">Save Board</string>
+</resources>
