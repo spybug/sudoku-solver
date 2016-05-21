@@ -10,46 +10,59 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.spybug.sudokusolver.PuzzleSolver">
 
-    <Button
-        android:text="@string/full_solve_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/fully_solve_button"
-        android:layout_marginBottom="108dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="42dp"
-        android:layout_marginStart="42dp"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/single_solve_label"
-        android:id="@+id/single_solve_button"
-        android:layout_alignTop="@id/fully_solve_button"
-        android:layout_toRightOf="@id/fully_solve_button"
-        android:layout_toEndOf="@id/fully_solve_button"
-        android:layout_marginLeft="42dp"
-        android:layout_marginStart="42dp"
-        />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/clear_puzzle_label"
-        android:id="@+id/clear_puzzle_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/fully_solve_button"
-        android:layout_alignStart="@+id/fully_solve_button"
-        android:layout_marginBottom="26dp"/>
+            <Button
+                android:text="@string/full_solve_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/fully_solve_button"
+                android:layout_weight="1"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save_puzzle_label"
-        android:id="@+id/save_puzzle_button"
-        android:layout_alignTop="@id/clear_puzzle_button"
-        android:layout_alignRight="@id/single_solve_button"
-        android:layout_alignEnd="@id/single_solve_button"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/single_solve_label"
+                android:id="@+id/single_solve_button"
+                android:layout_weight="1"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_puzzle_label"
+                android:id="@+id/clear_puzzle_button"
+                android:layout_weight="1"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/save_puzzle_label"
+                android:id="@+id/save_puzzle_button"
+                android:layout_weight="1"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>
