@@ -10,10 +10,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.spybug.sudokusolver.PuzzleSolver">
 
+
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/board_gridview"
+            android:numColumns="9"
+            android:layout_marginBottom="16dp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:stretchMode="columnWidth"
+            />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -37,6 +50,7 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -63,6 +77,12 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"/>
+
         </LinearLayout>
+
     </LinearLayout>
+
+
+
+
 </RelativeLayout>
