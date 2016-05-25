@@ -9,6 +9,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -38,7 +39,7 @@ public class PuzzleSolver extends AppCompatActivity {
             tableRow.setId(i + 100); //sets id between 100 and 100 + boardSize
 
             for (int j = 0; j < boardSize; j++) {
-                final EditText editText = new EditText(this);
+                final TableEntryEditText editText = new TableEntryEditText(this);
 
                 editText.setLayoutParams( new TableRow.LayoutParams(
                         0, TableRow.LayoutParams.WRAP_CONTENT, 1.0f)); //0 width and wrap_content height
@@ -49,17 +50,11 @@ public class PuzzleSolver extends AppCompatActivity {
                         new InputFilter.LengthFilter(5) //sets max length to 1
                 });
                 editText.setCursorVisible(false);
+                editText.setSelection(editText.length());
 
                 editText.setId(i * 9 + j); //sets id between 0 and 80
 
                 tableRow.addView(editText);
-
-                editText.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        editText.setSelection(editText.length()); //sets cursor to end of editText
-                    }
-                });
 
                 editText.addTextChangedListener(new TextWatcher() {
 
