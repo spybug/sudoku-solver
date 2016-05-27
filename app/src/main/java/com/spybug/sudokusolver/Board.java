@@ -12,7 +12,7 @@ public class Board {
     private int data[][];
     private int solvedData[][];
     private boolean hasBeenSolved;
-    private boolean unsolvable;
+    private boolean solvable;
     private ArrayList<Coordinate> entries;
 
     private class Coordinate {
@@ -23,14 +23,6 @@ public class Board {
             x = x_loc;
             y = y_loc;
         }
-//
-//        public int getX(){
-//            return x;
-//        }
-//
-//        public int getY() {
-//            return y;
-//        }
     }
 
     public Board(int size) {
@@ -43,22 +35,19 @@ public class Board {
         data = new int[size][size];
         solvedData = new int[size][size];
         hasBeenSolved = false;
-        unsolvable = false;
+        solvable = true;
         entries = new ArrayList<Coordinate>();
     }
 
     public boolean solvePuzzle() {
-        //implement sudoku solving algorithm
-        for (Coordinate c : entries) {
-            solvedData[c.x][c.y] = data[c.x][c.y]; //copy entries in data over to solvedData
-        }
+        for (int i = 0; i < size; i++)
+            System.arraycopy(data[i], 0, solvedData[i], 0, size);
 
         if(backtrack()) { //recursive method that solves puzzle in solvedData
-            unsolvable = false;
+            hasBeenSolved = true;
             return true;
         }
         else {
-            unsolvable = true;
             return false;
         }
     }
@@ -133,12 +122,13 @@ public class Board {
 
         for (int i = entries.size()-1; i >= 0; i--) {
             if (entries.get(i).x == x && entries.get(i).y == y) {
-                Log.v("Board-deleteData", "removed " + data[entries.get(i).x][entries.get(i).y] + " at [" + entries.get(i).x + "," + entries.get(i).y + "]");
+                Log.v("Board-deleteData", "removed " + data[x][y] + " at [" + x + "," + y + "]   entry size: " + entries.size());
                 data[x][y] = 0;
                 entries.remove(i);
                 break;
             }
         }
+        hasBeenSolved = false;
     }
 
     public void setData(int index, int value) {
@@ -181,3 +171,4 @@ public class Board {
 }
 
 //references: http://programmers.stackexchange.com/questions/212808/treating-a-1d-data-structure-as-2d-grid
+//              http://www.geeksforgeeks.org/backtracking-set-7-suduku/
