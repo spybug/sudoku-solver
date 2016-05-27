@@ -3,6 +3,7 @@ package com.spybug.sudokusolver;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ButtonBarLayout;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -11,14 +12,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
 public class PuzzleSolver extends AppCompatActivity {
 
-    TableLayout mTableLayout;
-    Board mBoard;
+    private TableLayout mTableLayout;
+    private Board mBoard;
+    private Button mClearBoardButton;
 
     final static int DEFAULT_BOARD_SIZE = 9;
 
@@ -33,6 +36,32 @@ public class PuzzleSolver extends AppCompatActivity {
             mTableLayout = (TableLayout) findViewById(R.id.board_table);
             createTable(DEFAULT_BOARD_SIZE);
 
+        mClearBoardButton = (Button) findViewById(R.id.clear_puzzle_button);
+        mClearBoardButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearEditTexts();
+            }
+        });
+
+    }
+
+    private void clearEditTexts() {
+        for (int i = 0; i < mTableLayout.getChildCount(); i++) { //loops through all rows in tableLayout
+            TableRow tempTR = (TableRow) mTableLayout.getChildAt(i); //sets a temp TableRow
+            for (int j = 0; j < tempTR.getChildCount(); j++) { //loops through all editTexts in current TableRow
+                EditText et = (EditText) tempTR.getChildAt(j);
+                et.setText(""); //clears the editText
+            }
+        }
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle SavedInstanceState) {
+        super.onSaveInstanceState(SavedInstanceState);
+
+        String boardData;
     }
 
     private void createTable(int size) {
@@ -72,6 +101,9 @@ public class PuzzleSolver extends AppCompatActivity {
                         }
                         else if (editText.length() == 1 && s.length() == 1) {
                             mBoard.setData(editText.getId(), Integer.parseInt(s.toString())); //sets board data when something entered
+                        }
+                        else if (count == 0 && editText.length() == 0) {
+                            mBoard.deleteData(editText.getId());
                         }
                     }
                     @Override

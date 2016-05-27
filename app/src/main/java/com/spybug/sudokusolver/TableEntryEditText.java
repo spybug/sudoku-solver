@@ -1,6 +1,9 @@
 package com.spybug.sudokusolver;
 
 import android.content.Context;
+import android.view.KeyEvent;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputConnectionWrapper;
 import android.widget.EditText;
 
 public class TableEntryEditText extends EditText {

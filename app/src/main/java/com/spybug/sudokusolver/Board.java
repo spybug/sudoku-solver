@@ -2,6 +2,7 @@ package com.spybug.sudokusolver;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Board {
@@ -11,6 +12,25 @@ public class Board {
     private int data[][];
     private boolean hasBeenSolved;
     private boolean unsolvable;
+    private ArrayList<Coordinate> entries;
+
+    private class Coordinate {
+        public int x;
+        public int y;
+
+        public Coordinate(int x_loc, int y_loc) {
+            x = x_loc;
+            y = y_loc;
+        }
+//
+//        public int getX(){
+//            return x;
+//        }
+//
+//        public int getY() {
+//            return y;
+//        }
+    }
 
     public Board(int size) {
         this(UUID.randomUUID(), size);
@@ -22,6 +42,7 @@ public class Board {
         data = new int[size][size];
         hasBeenSolved = false;
         unsolvable = false;
+        entries = new ArrayList<Coordinate>();
     }
 
     public boolean solvePuzzle() {
@@ -35,10 +56,34 @@ public class Board {
         return true;
     }
 
+    public void deleteData(int index) {
+        int x = index % size;
+        int y = index / size;
+
+        for (int i = entries.size()-1; i >= 0; i--) {
+            if (entries.get(i).x == x && entries.get(i).y == y) {
+                Log.v("Board-deleteData", "removed " + data[entries.get(i).x][entries.get(i).y] + " at [" + entries.get(i).x + "," + entries.get(i).y + "]");
+                data[x][y] = 0;
+                entries.remove(i);
+                break;
+            }
+        }
+    }
+
     public void setData(int index, int value) {
         int x = index % size;
         int y = index / size;
         data[x][y] = value;
+
+        boolean duplicateFound = false;
+        for (Coordinate c : entries) {
+            if (c.x == x && c.y == y) {
+                duplicateFound = true;
+                break;
+            }
+        }
+        if (!duplicateFound)
+            entries.add(new Coordinate(x, y));
 
         checkEntry(x, y);
     }
