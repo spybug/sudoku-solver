@@ -1,19 +1,15 @@
 package com.spybug.sudokusolver;
 
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.ButtonBarLayout;
 import android.text.Editable;
-import android.text.InputFilter;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
@@ -33,10 +29,9 @@ public class PuzzleSolver extends AppCompatActivity {
 
         mBoard = new Board(DEFAULT_BOARD_SIZE);
 
-
-            setContentView(R.layout.activity_puzzle_solver);
-            mTableLayout = (TableLayout) findViewById(R.id.board_table);
-            createTable(DEFAULT_BOARD_SIZE);
+        setContentView(R.layout.activity_puzzle_solver);
+        mTableLayout = (TableLayout) findViewById(R.id.board_table);
+        createTable(DEFAULT_BOARD_SIZE);
 
         mClearBoardButton = (Button) findViewById(R.id.clear_puzzle_button);
         mClearBoardButton.setOnClickListener(new Button.OnClickListener() {
@@ -50,22 +45,26 @@ public class PuzzleSolver extends AppCompatActivity {
         mFullySolveButton.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //boolean solved = mBoard.solvePuzzle();
-
                 if (mBoard.solvePuzzle()) {
-                    EditText tempET;
+                    TableEntryEditText tempET;
                     int size = mBoard.getSize();
                     for (int i = 0; i < size; i++) {
                         for (int j = 0; j < size; j++) {
-                            tempET = (EditText) findViewById(i * size + j);
-                            if (tempET != null)
-                                tempET.setText(mBoard.getSolvedData(i * size + j) + "");
+                            tempET = (TableEntryEditText) findViewById(i * size + j);
+                            if (tempET != null) {
+                                tempET.setText(String.format("%s", mBoard.getSolvedData(i * size + j)));
+                                tempET.disableEditability();
+                            }
                         }
                     }
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Puzzle could not be solved", Toast.LENGTH_SHORT).show();
                 }
+
+                InputMethodManager imm = (InputMethodManager) PuzzleSolver.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm.isAcceptingText())
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0); //hide keyboard if its open - VERY BUGGY
             }
         });
 
@@ -75,7 +74,8 @@ public class PuzzleSolver extends AppCompatActivity {
         for (int i = 0; i < mTableLayout.getChildCount(); i++) { //loops through all rows in tableLayout
             TableRow tempTR = (TableRow) mTableLayout.getChildAt(i); //sets a temp TableRow
             for (int j = 0; j < tempTR.getChildCount(); j++) { //loops through all editTexts in current TableRow
-                EditText et = (EditText) tempTR.getChildAt(j);
+                TableEntryEditText et = (TableEntryEditText) tempTR.getChildAt(j);
+                et.enableEditability();
                 et.setText(""); //clears the editText
             }
         }
@@ -99,21 +99,7 @@ public class PuzzleSolver extends AppCompatActivity {
 
             for (int j = 0; j < size; j++) {
                 final TableEntryEditText editText = new TableEntryEditText(this);
-
-                editText.setLayoutParams( new TableRow.LayoutParams(
-                        0, TableRow.LayoutParams.WRAP_CONTENT, 1.0f)); //0 width and wrap_content height
-                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                editText.setEms(10);
-                editText.setGravity(Gravity.CENTER_HORIZONTAL);
-                editText.setFilters(new InputFilter[] {
-                        new InputFilter.LengthFilter(5) //sets max length to 1
-                });
-                editText.setCursorVisible(false);
-                editText.setSelection(editText.length());
-
                 editText.setId(i * size + j); //sets id between 0 and 80
-
-                tableRow.addView(editText);
 
                 editText.addTextChangedListener(new TextWatcher() {
 
@@ -137,6 +123,8 @@ public class PuzzleSolver extends AppCompatActivity {
                     @Override
                     public void afterTextChanged(Editable s) {}
                 });
+
+                tableRow.addView(editText);
             }
 
             mTableLayout.addView(tableRow); //add the row to the table

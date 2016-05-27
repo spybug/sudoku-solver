@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:fillViewport="true"
     tools:context="com.spybug.sudokusolver.PuzzleSolver">
-
-
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:paddingTop="7dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:focusableInTouchMode="true">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -78,6 +77,5 @@
     </LinearLayout>
 
 
+</ScrollView>
 
-
-</RelativeLayout>

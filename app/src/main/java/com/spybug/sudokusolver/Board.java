@@ -39,6 +39,24 @@ public class Board {
         entries = new ArrayList<Coordinate>();
     }
 
+    public void setData(int index, int value) {
+        int x = index % size;
+        int y = index / size;
+        data[x][y] = value;
+
+        boolean duplicateFound = false;
+        for (Coordinate c : entries) {
+            if (c.x == x && c.y == y) {
+                duplicateFound = true;
+                break;
+            }
+        }
+        if (!duplicateFound)
+            entries.add(new Coordinate(x, y));
+
+        checkEntry(x, y);
+    }
+
     public boolean solvePuzzle() {
         for (int i = 0; i < size; i++)
             System.arraycopy(data[i], 0, solvedData[i], 0, size);
@@ -55,6 +73,22 @@ public class Board {
     //checks that value entered at index has no repeats in its column, row, or group
     private boolean checkEntry(int x, int y) {
         Log.v("Board-checkEntry", "value " + data[x][y] + " entered at index [" + x + "," + y + "]"); // is not valid!");
+        int entry = data[x][y];
+
+        if (boxDuplicate(x, y, entry)) {
+            solvable = false;
+            return false;
+        }
+        else if (rowDuplicate(x, entry)) {
+            solvable = false;
+            return false;
+        }
+        else if (colDuplicate(y, entry)) {
+            solvable = false;
+            return false;
+        }
+
+        solvable = true;
         return true;
     }
 
@@ -78,7 +112,7 @@ public class Board {
     }
 
     private boolean safePosition(int x, int y, int num) {
-        return !rowDuplicate(x, num) && !colDuplicate(y, num) && !boxDuplicate(x - x%3, y - y%3, num);
+        return !rowDuplicate(x, num) && !colDuplicate(y, num) && !boxDuplicate(x, y, num);
     }
 
     private boolean rowDuplicate(int x, int num) {
@@ -98,6 +132,9 @@ public class Board {
     }
 
     private boolean boxDuplicate(int start_x, int start_y, int num) {
+        start_x -= start_x % 3;
+        start_y -= start_y % 3;
+
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 if (solvedData[x + start_x][y + start_y] == num)
@@ -129,24 +166,6 @@ public class Board {
             }
         }
         hasBeenSolved = false;
-    }
-
-    public void setData(int index, int value) {
-        int x = index % size;
-        int y = index / size;
-        data[x][y] = value;
-
-        boolean duplicateFound = false;
-        for (Coordinate c : entries) {
-            if (c.x == x && c.y == y) {
-                duplicateFound = true;
-                break;
-            }
-        }
-        if (!duplicateFound)
-            entries.add(new Coordinate(x, y));
-
-        checkEntry(x, y);
     }
 
     public int getData(int index) {
