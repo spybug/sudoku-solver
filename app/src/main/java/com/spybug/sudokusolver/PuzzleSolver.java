@@ -16,12 +16,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 public class PuzzleSolver extends AppCompatActivity {
 
     private TableLayout mTableLayout;
     private Board mBoard;
     private Button mClearBoardButton;
+    private Button mFullySolveButton;
 
     final static int DEFAULT_BOARD_SIZE = 9;
 
@@ -41,6 +43,29 @@ public class PuzzleSolver extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 clearEditTexts();
+            }
+        });
+
+        mFullySolveButton = (Button) findViewById(R.id.fully_solve_button);
+        mFullySolveButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //boolean solved = mBoard.solvePuzzle();
+
+                if (mBoard.solvePuzzle()) {
+                    EditText tempET;
+                    int size = mBoard.getSize();
+                    for (int i = 0; i < size; i++) {
+                        for (int j = 0; j < size; j++) {
+                            tempET = (EditText) findViewById(i * size + j);
+                            if (tempET != null)
+                                tempET.setText(mBoard.getSolvedData(i * size + j) + "");
+                        }
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Puzzle could not be solved", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

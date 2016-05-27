@@ -10,6 +10,7 @@ public class Board {
     private UUID mId;
     private int size;
     private int data[][];
+    private int solvedData[][];
     private boolean hasBeenSolved;
     private boolean unsolvable;
     private ArrayList<Coordinate> entries;
@@ -40,6 +41,7 @@ public class Board {
         mId = id;
         this.size = size;
         data = new int[size][size];
+        solvedData = new int[size][size];
         hasBeenSolved = false;
         unsolvable = false;
         entries = new ArrayList<Coordinate>();
@@ -47,12 +49,81 @@ public class Board {
 
     public boolean solvePuzzle() {
         //implement sudoku solving algorithm
-        return false;
+        for (Coordinate c : entries) {
+            solvedData[c.x][c.y] = data[c.x][c.y]; //copy entries in data over to solvedData
+        }
+
+        if(backtrack()) { //recursive method that solves puzzle in solvedData
+            unsolvable = false;
+            return true;
+        }
+        else {
+            unsolvable = true;
+            return false;
+        }
     }
 
     //checks that value entered at index has no repeats in its column, row, or group
     private boolean checkEntry(int x, int y) {
         Log.v("Board-checkEntry", "value " + data[x][y] + " entered at index [" + x + "," + y + "]"); // is not valid!");
+        return true;
+    }
+
+    private boolean backtrack() {
+        Coordinate c = new Coordinate(0, 0);
+
+        if (findEmptyLocation(solvedData, c))
+            return true;
+
+        for (int num = 1; num <= 9; num++) {
+            if (safePosition(c.x, c.y, num)) {
+                solvedData[c.x][c.y] = num;
+
+                if (backtrack())
+                    return true;
+                else
+                    solvedData[c.x][c.y] = 0;
+            }
+        }
+        return false;
+    }
+
+    private boolean safePosition(int x, int y, int num) {
+        return !rowDuplicate(x, num) && !colDuplicate(y, num) && !boxDuplicate(x - x%3, y - y%3, num);
+    }
+
+    private boolean rowDuplicate(int x, int num) {
+        for (int y = 0; y < size; y++) {
+            if (solvedData[x][y] == num)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean colDuplicate(int y, int num) {
+        for (int x = 0; x < size; x++) {
+            if (solvedData[x][y] == num)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean boxDuplicate(int start_x, int start_y, int num) {
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (solvedData[x + start_x][y + start_y] == num)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean findEmptyLocation(int[][] board, Coordinate c) {
+        for (c.x = 0; c.x < size; c.x++) {
+            for (c.y = 0; c.y < size; c.y++)
+                if(board[c.x][c.y] == 0)
+                    return false;
+        }
         return true;
     }
 
@@ -90,6 +161,10 @@ public class Board {
 
     public int getData(int index) {
         return data[index % size][index / size];
+    }
+
+    public int getSolvedData(int index) {
+        return solvedData[index % size][index / size];
     }
 
     public int getSize() {
