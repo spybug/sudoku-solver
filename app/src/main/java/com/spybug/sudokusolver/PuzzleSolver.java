@@ -42,6 +42,8 @@ public class PuzzleSolver extends AppCompatActivity {
             public void onClick(View v) {
                 clearEditTexts();
                 mBoard.deleteData();
+                if (!mFullySolveButton.isEnabled())
+                    mFullySolveButton.setEnabled(true);
             }
         });
 
@@ -63,12 +65,13 @@ public class PuzzleSolver extends AppCompatActivity {
                         }
                     }
                     ignoreNextText = false;
+                    mFullySolveButton.setEnabled(false);
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Puzzle could not be solved", Toast.LENGTH_SHORT).show();
                 }
 
-                InputMethodManager imm = (InputMethodManager) PuzzleSolver.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                //InputMethodManager imm = (InputMethodManager) PuzzleSolver.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 //if (imm.isAcceptingText())
                     //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0); //hide keyboard if its open - VERY BUGGY
             }

@@ -45,6 +45,8 @@ public class Board {
         int x = index % size;
         int y = index / size;
 
+        data[x][y] = value;
+
         if (value != 0) {
             boolean duplicateFound = false;
             for (Coordinate c : entries) {
@@ -59,8 +61,6 @@ public class Board {
 
             checkData(x, y, value);
         }
-
-        data[x][y] = value;
 
         Log.v("Board-checkEntry", "value " + value + " entered at index [" + x + "," + y + "]");
     }
@@ -84,6 +84,7 @@ public class Board {
         if (colDuplicate(x, value, data) || rowDuplicate(y, value, data) || boxDuplicate(x, y, value, data)) {
             solvable = false;
             invalidEntries.add(new Coordinate(x, y));
+            Log.v("board-checkData", "invalid entry added for " + x + "," + y + " and size is " + entries.size());
             return false;
         }
         else {
@@ -94,20 +95,28 @@ public class Board {
 
 
     private boolean rowDuplicate(int y, int num, int[][] array) {
+        boolean duplicateCounter = false;
         for (int x = 0; x < size; x++) {
             if (array[x][y] == num) {
-                Log.e("DuplicateChecking", "row duplicate found!");
-                return true;
+                if (duplicateCounter) {
+                    Log.e("DuplicateChecking", "row duplicate found!");
+                    return true;
+                }
+                duplicateCounter = true;
             }
         }
         return false;
     }
 
     private boolean colDuplicate(int x, int num, int[][] array) {
+        boolean duplicateCounter = false;
         for (int y = 0; y < size; y++) {
             if (array[x][y] == num) {
-                Log.e("DuplicateChecking", "col duplicate found!");
-                return true;
+                if (duplicateCounter) {
+                    Log.e("DuplicateChecking", "col duplicate found!");
+                    return true;
+                }
+                duplicateCounter = true;
             }
         }
         return false;
@@ -116,14 +125,18 @@ public class Board {
     private boolean boxDuplicate(int start_x, int start_y, int num, int[][] array) {
         start_x -= start_x % 3;
         start_y -= start_y % 3;
+        boolean duplicateCounter = false;
 
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 if (array[x + start_x][y + start_y] == num) {
-                    int xx = start_x + x;
-                    int yy = start_y + y;
-                    Log.e("DuplicateChecking", "box duplicate found at " + xx + "," + yy);
-                    return true;
+                    if (duplicateCounter) {
+                        int xx = start_x + x;
+                        int yy = start_y + y;
+                        Log.e("DuplicateChecking", "box duplicate found at " + xx + "," + yy);
+                        return true;
+                    }
+                    duplicateCounter = true;
                 }
             }
         }
@@ -133,6 +146,7 @@ public class Board {
     public void deleteSingleData(int index) {
         int x = index % size;
         int y = index / size;
+        int valueToDelete = data[x][y];
 
         for (int i = entries.size()-1; i >= 0; i--) {
             if (entries.get(i).x == x && entries.get(i).y == y) {
@@ -144,6 +158,7 @@ public class Board {
 
         for (int j = invalidEntries.size()-1; j >= 0; j--) {
             if (invalidEntries.get(j).x == x && invalidEntries.get(j).y == y) {
+
                 invalidEntries.remove(j);
                 break;
             }
@@ -151,10 +166,12 @@ public class Board {
 
         data[x][y] = 0;
 
+        if (checkData(x, y, valueToDelete))
+            solvable = true;
+
         hasBeenSolved = false;
 
-        if (invalidEntries.size() == 0)
-            solvable = true;
+
     }
 
     public void deleteData() {
