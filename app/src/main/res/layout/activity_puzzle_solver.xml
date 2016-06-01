@@ -11,21 +11,24 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="7dp"
-        android:layout_marginLeft="14dp"
-        android:layout_marginRight="14dp"
+        android:paddingTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:focusableInTouchMode="true">
 
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/board_table">
+            android:id="@+id/board_table"
+            android:padding="1dp"
+            android:background="@drawable/table_layout_border">
         </TableLayout>
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
 
             <Button
                 android:text="@string/full_solve_label"
@@ -52,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
 
             <Button
                 android:layout_width="0dp"

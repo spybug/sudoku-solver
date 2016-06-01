@@ -57,6 +57,7 @@ public class TableEntryEditText extends EditText {
     }
 
     private void setDefaultValues() {
+        setBackgroundResource(R.drawable.default_cell_shape);
         setGravity(Gravity.CENTER_HORIZONTAL);
         setLayoutParams(new TableRow.LayoutParams(
                 0, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));

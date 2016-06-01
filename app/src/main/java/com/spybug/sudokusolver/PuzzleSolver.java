@@ -20,6 +20,7 @@ public class PuzzleSolver extends AppCompatActivity {
     private Board mBoard;
     private Button mClearBoardButton;
     private Button mFullySolveButton;
+    private boolean ignoreNextText; //decides whether to skip textWatcher
 
     final static int DEFAULT_BOARD_SIZE = 9;
 
@@ -33,11 +34,14 @@ public class PuzzleSolver extends AppCompatActivity {
         mTableLayout = (TableLayout) findViewById(R.id.board_table);
         createTable(DEFAULT_BOARD_SIZE);
 
+        ignoreNextText = false;
+
         mClearBoardButton = (Button) findViewById(R.id.clear_puzzle_button);
         mClearBoardButton.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clearEditTexts();
+                mBoard.deleteData();
             }
         });
 
@@ -48,6 +52,7 @@ public class PuzzleSolver extends AppCompatActivity {
                 if (mBoard.solvePuzzle()) {
                     TableEntryEditText tempET;
                     int size = mBoard.getSize();
+                    ignoreNextText = true;
                     for (int i = 0; i < size; i++) {
                         for (int j = 0; j < size; j++) {
                             tempET = (TableEntryEditText) findViewById(i * size + j);
@@ -57,20 +62,22 @@ public class PuzzleSolver extends AppCompatActivity {
                             }
                         }
                     }
+                    ignoreNextText = false;
                 }
                 else {
                     Toast.makeText(getApplicationContext(), "Puzzle could not be solved", Toast.LENGTH_SHORT).show();
                 }
 
                 InputMethodManager imm = (InputMethodManager) PuzzleSolver.this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm.isAcceptingText())
-                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0); //hide keyboard if its open - VERY BUGGY
+                //if (imm.isAcceptingText())
+                    //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0); //hide keyboard if its open - VERY BUGGY
             }
         });
 
     }
 
     private void clearEditTexts() {
+        ignoreNextText = true;
         for (int i = 0; i < mTableLayout.getChildCount(); i++) { //loops through all rows in tableLayout
             TableRow tempTR = (TableRow) mTableLayout.getChildAt(i); //sets a temp TableRow
             for (int j = 0; j < tempTR.getChildCount(); j++) { //loops through all editTexts in current TableRow
@@ -79,6 +86,7 @@ public class PuzzleSolver extends AppCompatActivity {
                 et.setText(""); //clears the editText
             }
         }
+        ignoreNextText = false;
     }
 
 
@@ -105,6 +113,9 @@ public class PuzzleSolver extends AppCompatActivity {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if(ignoreNextText)
+                            return;
+
                         if (editText.length() > 1) {
                             String newInput = s.toString().substring(s.length() - 1); //grabs the last value entered
                             editText.setText(newInput); //sets the text to the newInput
@@ -114,7 +125,8 @@ public class PuzzleSolver extends AppCompatActivity {
                             mBoard.setData(editText.getId(), Integer.parseInt(s.toString())); //sets board data when something entered
                         }
                         else if (count == 0 && editText.length() == 0) {
-                            mBoard.deleteData(editText.getId());
+                            mBoard.deleteSingleData(editText.getId());
+                            Log.v("onTextChanged", "deleting data at index " + editText.getId());
                         }
                     }
                     @Override

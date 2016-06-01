@@ -14,6 +14,7 @@ public class Board {
     private boolean hasBeenSolved;
     private boolean solvable;
     private ArrayList<Coordinate> entries;
+    private ArrayList<Coordinate> invalidEntries;
 
     private class Coordinate {
         public int x;
@@ -36,32 +37,39 @@ public class Board {
         solvedData = new int[size][size];
         hasBeenSolved = false;
         solvable = true;
-        entries = new ArrayList<Coordinate>();
+        entries = new ArrayList<>();
+        invalidEntries = new ArrayList<>();
     }
 
     public void setData(int index, int value) {
         int x = index % size;
         int y = index / size;
+
+        if (value != 0) {
+            boolean duplicateFound = false;
+            for (Coordinate c : entries) {
+                if (c.x == x && c.y == y) {
+                    duplicateFound = true;
+                    break;
+                }
+            }
+
+            if (!duplicateFound)
+                entries.add(new Coordinate(x, y));
+
+            checkData(x, y, value);
+        }
+
         data[x][y] = value;
 
-        boolean duplicateFound = false;
-        for (Coordinate c : entries) {
-            if (c.x == x && c.y == y) {
-                duplicateFound = true;
-                break;
-            }
-        }
-        if (!duplicateFound)
-            entries.add(new Coordinate(x, y));
-
-        checkEntry(x, y);
+        Log.v("Board-checkEntry", "value " + value + " entered at index [" + x + "," + y + "]");
     }
 
     public boolean solvePuzzle() {
         for (int i = 0; i < size; i++)
             System.arraycopy(data[i], 0, solvedData[i], 0, size);
 
-        if(backtrack()) { //recursive method that solves puzzle in solvedData
+        if(solvable && SolverAlgorithm.solve(solvedData)) { //recursive method that solves puzzle in solvedData
             hasBeenSolved = true;
             return true;
         }
@@ -71,101 +79,91 @@ public class Board {
     }
 
     //checks that value entered at index has no repeats in its column, row, or group
-    private boolean checkEntry(int x, int y) {
-        Log.v("Board-checkEntry", "value " + data[x][y] + " entered at index [" + x + "," + y + "]"); // is not valid!");
-        int entry = data[x][y];
+    private boolean checkData(int x, int y, int value) {
 
-        if (boxDuplicate(x, y, entry)) {
+        if (colDuplicate(x, value, data) || rowDuplicate(y, value, data) || boxDuplicate(x, y, value, data)) {
             solvable = false;
+            invalidEntries.add(new Coordinate(x, y));
             return false;
         }
-        else if (rowDuplicate(x, entry)) {
-            solvable = false;
-            return false;
+        else {
+            solvable = true;
+            return true;
         }
-        else if (colDuplicate(y, entry)) {
-            solvable = false;
-            return false;
-        }
-
-        solvable = true;
-        return true;
     }
 
-    private boolean backtrack() {
-        Coordinate c = new Coordinate(0, 0);
 
-        if (findEmptyLocation(solvedData, c))
-            return true;
-
-        for (int num = 1; num <= 9; num++) {
-            if (safePosition(c.x, c.y, num)) {
-                solvedData[c.x][c.y] = num;
-
-                if (backtrack())
-                    return true;
-                else
-                    solvedData[c.x][c.y] = 0;
+    private boolean rowDuplicate(int y, int num, int[][] array) {
+        for (int x = 0; x < size; x++) {
+            if (array[x][y] == num) {
+                Log.e("DuplicateChecking", "row duplicate found!");
+                return true;
             }
         }
         return false;
     }
 
-    private boolean safePosition(int x, int y, int num) {
-        return !rowDuplicate(x, num) && !colDuplicate(y, num) && !boxDuplicate(x, y, num);
-    }
-
-    private boolean rowDuplicate(int x, int num) {
+    private boolean colDuplicate(int x, int num, int[][] array) {
         for (int y = 0; y < size; y++) {
-            if (solvedData[x][y] == num)
+            if (array[x][y] == num) {
+                Log.e("DuplicateChecking", "col duplicate found!");
                 return true;
+            }
         }
         return false;
     }
 
-    private boolean colDuplicate(int y, int num) {
-        for (int x = 0; x < size; x++) {
-            if (solvedData[x][y] == num)
-                return true;
-        }
-        return false;
-    }
-
-    private boolean boxDuplicate(int start_x, int start_y, int num) {
+    private boolean boxDuplicate(int start_x, int start_y, int num, int[][] array) {
         start_x -= start_x % 3;
         start_y -= start_y % 3;
 
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                if (solvedData[x + start_x][y + start_y] == num)
+                if (array[x + start_x][y + start_y] == num) {
+                    int xx = start_x + x;
+                    int yy = start_y + y;
+                    Log.e("DuplicateChecking", "box duplicate found at " + xx + "," + yy);
                     return true;
+                }
             }
         }
         return false;
     }
 
-    private boolean findEmptyLocation(int[][] board, Coordinate c) {
-        for (c.x = 0; c.x < size; c.x++) {
-            for (c.y = 0; c.y < size; c.y++)
-                if(board[c.x][c.y] == 0)
-                    return false;
-        }
-        return true;
-    }
-
-    public void deleteData(int index) {
+    public void deleteSingleData(int index) {
         int x = index % size;
         int y = index / size;
 
         for (int i = entries.size()-1; i >= 0; i--) {
             if (entries.get(i).x == x && entries.get(i).y == y) {
                 Log.v("Board-deleteData", "removed " + data[x][y] + " at [" + x + "," + y + "]   entry size: " + entries.size());
-                data[x][y] = 0;
                 entries.remove(i);
                 break;
             }
         }
+
+        for (int j = invalidEntries.size()-1; j >= 0; j--) {
+            if (invalidEntries.get(j).x == x && invalidEntries.get(j).y == y) {
+                invalidEntries.remove(j);
+                break;
+            }
+        }
+
+        data[x][y] = 0;
+
         hasBeenSolved = false;
+
+        if (invalidEntries.size() == 0)
+            solvable = true;
+    }
+
+    public void deleteData() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                data[i][j] = 0;
+            }
+        }
+        solvable = true;
     }
 
     public int getData(int index) {
