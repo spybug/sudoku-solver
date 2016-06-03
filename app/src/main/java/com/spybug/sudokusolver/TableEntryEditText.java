@@ -6,12 +6,16 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TableRow;
 
 public class TableEntryEditText extends EditText {
+
+    private boolean invalidEntry;
+    private static final int[] STATE_INVALID_ENTRY = {R.attr.state_invalid_entry};
 
     public TableEntryEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -41,6 +45,18 @@ public class TableEntryEditText extends EditText {
         super.onSelectionChanged(start, end);
     }
 
+    @Override
+    protected int[] onCreateDrawableState(int extraSpace) {
+        if (invalidEntry) {
+            final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
+            mergeDrawableStates(drawableState, STATE_INVALID_ENTRY);
+            return drawableState;
+        }
+        else {
+            return super.onCreateDrawableState(extraSpace);
+        }
+    }
+
     public void disableEditability() {
         setLongClickable(false);
         setFocusableInTouchMode(false);
@@ -56,12 +72,19 @@ public class TableEntryEditText extends EditText {
         setFocusable(true);
     }
 
+
+    public void setInvalidEntry(boolean value) {
+        invalidEntry = value;
+
+        refreshDrawableState();
+    }
+
     private void setDefaultValues() {
-        setBackgroundResource(R.drawable.default_cell_shape);
+        setBackgroundResource(R.drawable.cell_selector);
         setGravity(Gravity.CENTER_HORIZONTAL);
         setLayoutParams(new TableRow.LayoutParams(
                 0, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
-        setEms(10);
+        setEms(1);
         setInputType(InputType.TYPE_CLASS_NUMBER);
         setCursorVisible(false);
         setSelection(0);
@@ -69,6 +92,9 @@ public class TableEntryEditText extends EditText {
                 new InputFilter.LengthFilter(2) //sets max length to 2
         });
         setKeyListener(DigitsKeyListener.getInstance("123456789"));
+        setTextSize(26);
+        setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        setPadding(0, 20, 0, 0);
     }
 
 }

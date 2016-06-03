@@ -87,6 +87,7 @@ public class PuzzleSolver extends AppCompatActivity {
                 TableEntryEditText et = (TableEntryEditText) tempTR.getChildAt(j);
                 et.enableEditability();
                 et.setText(""); //clears the editText
+                et.setInvalidEntry(false);
             }
         }
         ignoreNextText = false;
@@ -100,10 +101,53 @@ public class PuzzleSolver extends AppCompatActivity {
         String boardData;
     }
 
-    private void createTable(int size) {
+    private void checkEntry(int editTextId) {
+        TableEntryEditText tempET;
+        int startPos;
+
+        switch (mBoard.checkData(editTextId)) {
+            case 1:
+                //set col background for elements to red
+                for (int i = mBoard.computeX(editTextId); i < mBoard.getSize() * mBoard.getSize(); i+=9) {
+                    tempET = (TableEntryEditText) findViewById(i);
+                    if (tempET != null)
+                        tempET.setInvalidEntry(true);
+                        //tempET.setBackgroundResource(R.drawable.invalid_cell);
+                }
+                break;
+            case 2:
+                //set row background for elements to red
+                startPos = mBoard.computeY(editTextId) * mBoard.getSize();
+                for (int i = startPos; i < startPos + 9; i++) {
+                    tempET = (TableEntryEditText) findViewById(i);
+                    if (tempET != null)
+                        tempET.setInvalidEntry(true);
+                        //tempET.setBackgroundResource(R.drawable.invalid_cell);
+                }
+                break;
+            case 3:
+                //set box background for elements to red
+                startPos = (editTextId - (editTextId % 3)) - ((editTextId / 9) % 3 * 9);
+                for (int y = startPos; y < 27 + startPos; y += 9) {
+                    for (int loc = y; loc < y + 3; loc++) {
+                        tempET = (TableEntryEditText) findViewById(loc);
+                        if (tempET != null)
+                            tempET.setInvalidEntry(true);
+                            //tempET.setBackgroundResource(R.drawable.invalid_cell);
+                    }
+                }
+
+                break;
+            case 0:
+                //remove element from list and set background to normal
+                break;
+        }
+    }
+
+    private void createTable(final int size) {
 
         for (int i = 0; i < size; i++) {
-            TableRow tableRow = new TableRow(this);
+            final TableRow tableRow = new TableRow(this);
             tableRow.setLayoutParams( new TableRow.LayoutParams(
                     TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT)); //sets width and height
             tableRow.setId(i + 100); //sets id between 100 and 100 + boardSize
@@ -112,7 +156,17 @@ public class PuzzleSolver extends AppCompatActivity {
                 final TableEntryEditText editText = new TableEntryEditText(this);
                 editText.setId(i * size + j); //sets id between 0 and 80
 
-                editText.addTextChangedListener(new TextWatcher() {
+                mTableLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.setHeight(mTableLayout.getWidth() / 9);
+                    }
+                });
+                //editText.setHeight(tableRow.getWidth());
+                //http://stackoverflow.com/questions/3591784/getwidth-and-getheight-of-view-returns-0
+
+                editText.addTextChangedListener(new TextWatcher() { //add custom textwatcher class that accesses edittext parent and such and changes background id's of all edititexts
+                                                                    //will need a way to check if certain set of edittexts background has been set and change it if changes
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -123,12 +177,15 @@ public class PuzzleSolver extends AppCompatActivity {
                             String newInput = s.toString().substring(s.length() - 1); //grabs the last value entered
                             editText.setText(newInput); //sets the text to the newInput
                             editText.setSelection(editText.length()); //sets cursor to end of editText
+                            checkEntry(editText.getId());
                         }
                         else if (editText.length() == 1 && s.length() == 1) {
                             mBoard.setData(editText.getId(), Integer.parseInt(s.toString())); //sets board data when something entered
+                            checkEntry(editText.getId());
                         }
                         else if (count == 0 && editText.length() == 0) {
                             mBoard.deleteSingleData(editText.getId());
+                            checkEntry(editText.getId());
                             Log.v("onTextChanged", "deleting data at index " + editText.getId());
                         }
                     }

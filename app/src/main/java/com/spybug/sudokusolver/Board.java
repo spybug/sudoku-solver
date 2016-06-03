@@ -47,22 +47,46 @@ public class Board {
 
         data[x][y] = value;
 
-        if (value != 0) {
-            boolean duplicateFound = false;
-            for (Coordinate c : entries) {
-                if (c.x == x && c.y == y) {
-                    duplicateFound = true;
-                    break;
-                }
+
+        boolean duplicateFound = false;
+        for (Coordinate c : entries) {
+            if (c.x == x && c.y == y) {
+                duplicateFound = true;
+                break;
             }
-
-            if (!duplicateFound)
-                entries.add(new Coordinate(x, y));
-
-            checkData(x, y, value);
         }
 
+        if (!duplicateFound)
+            entries.add(new Coordinate(x, y));
+
         Log.v("Board-checkEntry", "value " + value + " entered at index [" + x + "," + y + "]");
+    }
+
+    public void deleteSingleData(int index) {
+        int x = index % size;
+        int y = index / size;
+        int valueToDelete = data[x][y];
+
+        for (int i = entries.size()-1; i >= 0; i--) {
+            if (entries.get(i).x == x && entries.get(i).y == y) {
+                Log.v("Board-deleteData", "removed " + data[x][y] + " at [" + x + "," + y + "]   entry size: " + entries.size());
+                entries.remove(i);
+                break;
+            }
+        }
+
+        for (int j = invalidEntries.size()-1; j >= 0; j--) {
+            if (invalidEntries.get(j).x == x && invalidEntries.get(j).y == y) {
+                invalidEntries.remove(j);
+                break;
+            }
+        }
+
+        data[x][y] = 0;
+
+        //checkData(x, y, valueToDelete);
+
+        hasBeenSolved = false;
     }
 
     public boolean solvePuzzle() {
@@ -79,20 +103,39 @@ public class Board {
     }
 
     //checks that value entered at index has no repeats in its column, row, or group
-    private boolean checkData(int x, int y, int value) {
+    public int checkData(int index) {
+        int x = computeX(index);
+        int y = computeY(index);
+        int value = data[x][y];
 
-        if (colDuplicate(x, value, data) || rowDuplicate(y, value, data) || boxDuplicate(x, y, value, data)) {
-            solvable = false;
-            invalidEntries.add(new Coordinate(x, y));
-            Log.v("board-checkData", "invalid entry added for " + x + "," + y + " and size is " + entries.size());
-            return false;
+        if (value != 0) {
+            if (colDuplicate(x, value, data)) {
+                duplicateFound(x, y);
+                return 1;
+            }
+
+            if (rowDuplicate(y, value, data)) {
+                duplicateFound(x, y);
+                return 2;
+            }
+
+            if (boxDuplicate(x, y, value, data)) {
+                duplicateFound(x, y);
+                return 3;
+            }
         }
-        else {
-            solvable = true;
-            return true;
-        }
+
+        solvable = true; //probably not right, should check whether invalid entries is empty or just when something is deleted
+                        // if all row,col,and box duplicates return false for the deleted
+                        //then remove it from the invalidentries, if invalid entries is 0 then it is solvable
+        return 0;
     }
 
+    private void duplicateFound(int x, int y) {
+        solvable = false;
+        invalidEntries.add(new Coordinate(x, y));
+        Log.v("board-checkData", "invalid entry added for " + x + "," + y + " and size is " + entries.size());
+    }
 
     private boolean rowDuplicate(int y, int num, int[][] array) {
         boolean duplicateCounter = false;
@@ -143,36 +186,7 @@ public class Board {
         return false;
     }
 
-    public void deleteSingleData(int index) {
-        int x = index % size;
-        int y = index / size;
-        int valueToDelete = data[x][y];
 
-        for (int i = entries.size()-1; i >= 0; i--) {
-            if (entries.get(i).x == x && entries.get(i).y == y) {
-                Log.v("Board-deleteData", "removed " + data[x][y] + " at [" + x + "," + y + "]   entry size: " + entries.size());
-                entries.remove(i);
-                break;
-            }
-        }
-
-        for (int j = invalidEntries.size()-1; j >= 0; j--) {
-            if (invalidEntries.get(j).x == x && invalidEntries.get(j).y == y) {
-
-                invalidEntries.remove(j);
-                break;
-            }
-        }
-
-        data[x][y] = 0;
-
-        if (checkData(x, y, valueToDelete))
-            solvable = true;
-
-        hasBeenSolved = false;
-
-
-    }
 
     public void deleteData() {
         for (int i = 0; i < size; i++) {
@@ -181,6 +195,14 @@ public class Board {
             }
         }
         solvable = true;
+    }
+
+    public int computeX(int index) {
+        return index % size;
+    }
+
+    public int computeY(int index) {
+        return index / size;
     }
 
     public int getData(int index) {

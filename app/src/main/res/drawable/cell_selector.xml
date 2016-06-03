@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:app="http://schemas.android.com/apk/res/com.spybug.sudokusolver">
+
+    <item android:drawable="@drawable/highlighted_invalid_cell"
+          android:state_focused="true" app:state_invalid_entry="true"/>
+    <item android:drawable="@drawable/invalid_cell"
+          app:state_invalid_entry="true"/>
+    <item android:drawable="@drawable/highlighted_cell_shape"
+          android:state_focused="true"/>
+    <item android:drawable="@drawable/default_cell_shape"/>
+
+</selector>
